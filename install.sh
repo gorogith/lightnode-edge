@@ -1,12 +1,8 @@
-#!/bin/bash
-
-# filepath: /home/xru/bot/forward1/setup_light_node.sh
-
 echo "=== Layer Edge Light Node Setup Script ==="
 
 # Update and install prerequisites
 echo "Updating system and installing prerequisites..."
-sudo apt update && sudo apt install -y curl build-essential golang rustc cargo
+sudo apt update && sudo apt install -y curl build-essential golang rustc cargo git
 
 # Install risc0 toolchain
 echo "Installing risc0 toolchain..."
@@ -44,14 +40,22 @@ EOL
 
 echo ".env file created successfully!"
 
+# Clone repository if not present
+if [ ! -d "risc0-merkle-service" ] || [ ! -f "light-node.go" ]; then
+  echo "Cloning Layer Edge Light Node repository..."
+  git clone https://github.com/Layer-Edge/light-node.git
+  cd light-node || exit
+else
+  echo "Repository already exists. Skipping clone step."
+fi
+
 # Build and run the servers
-echo "Building and running the servers..."
 if [ -d "risc0-merkle-service" ]; then
   cd risc0-merkle-service
   cargo build && cargo run &
   cd ..
 else
-  echo "Directory 'risc0-merkle-service' not found. Please clone the repository."
+  echo "Directory 'risc0-merkle-service' not found. Please ensure the repository is cloned correctly."
 fi
 
 if [ -f "light-node.go" ]; then
